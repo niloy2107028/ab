@@ -151,6 +151,52 @@ def custom_kernel():
     return kernel
 
 
+# Contraharmonic Mean Filter (CMF)
+def contraharmonic_filter(image, size, Q):
+    k=size//2
+    padded=zero_padding(image,k)
+    output=np.zeros(image.shape)
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            region=padded[i:i+size,j:j+size]
+
+            numerator=np.sum(region**(Q+1))
+            denominator=np.sum(region**Q)
+
+            if denominator==0:
+                output[i,j]=0
+            else:
+                output[i,j]=numerator/denominator
+
+    return output
+
+
+# Alpha-trimmed Mean Filter
+def alpha_trimmed_filter(image, size, d):
+    k=size//2
+    padded=zero_padding(image,k)
+    output=np.zeros(image.shape)
+
+    for i in range(image.shape[0]):
+        for j in range(image.shape[1]):
+            region=padded[i:i+size,j:j+size]
+
+            pixels=np.sort(region.flatten())
+
+            pixels=pixels[d//2:len(pixels)-d//2]
+
+            output[i,j]=np.mean(pixels)
+
+    return output
+
+
+# Apply Filters
+output_cmf=contraharmonic_filter(image,5,1.5)
+
+output_alpha=alpha_trimmed_filter(image,5,2)
+
+
 # Generate Kernels
 kernel_gaussian=gaussian_kernel(5,2)
 
